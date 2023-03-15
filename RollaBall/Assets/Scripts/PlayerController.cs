@@ -7,12 +7,27 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     public float speed = 0;
+
+    public float Jump = 0;
+    //public float radius;
+    public Vector3 boxSize;
+    public float maxDistance;
+    public LayerMask layermask;
+
+    RaycastHit hit;
+
     public TextMeshProUGUI countText;
+
     public GameObject winTextObject;
     public GameObject resetButton;
+    public GameObject nextLevelbutton;
+
+    public GameObject Gate;
 
     private Rigidbody rb;
+
     private int count;
+
     private float movementX;
     private float movementY;
 
@@ -25,6 +40,7 @@ public class PlayerController : MonoBehaviour
         SetCountText();
         winTextObject.SetActive(false);
         resetButton.gameObject.SetActive(false);
+        nextLevelbutton.gameObject.SetActive(false);
     }
 
     void OnMove(InputValue movementValue)
@@ -42,6 +58,7 @@ public class PlayerController : MonoBehaviour
         {
             winTextObject.SetActive(true);
             resetButton.gameObject.SetActive(true);
+            nextLevelbutton.gameObject.SetActive(true);
         }
     }
 
@@ -50,6 +67,29 @@ public class PlayerController : MonoBehaviour
         Vector3 movement = new Vector3(movementX, 0.0f, movementY);
 
         rb.AddForce(movement * speed);
+
+        if (Input.GetKeyDown(KeyCode.Space) && GroundCheck())
+        {
+            rb.AddForce(transform.up * Jump,ForceMode.Impulse);
+        }
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawCube(transform.position - transform.up * maxDistance, boxSize);
+    }
+
+    bool GroundCheck()
+    {
+        if (Physics.BoxCast(transform.position, boxSize, -transform.up, transform.rotation, maxDistance, layermask))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -60,11 +100,39 @@ public class PlayerController : MonoBehaviour
             count = count + 1;
 
             SetCountText();
-        }
 
-        if (other.gameObject.CompareTag("Wall"))
+            OpenGate();
+        }
+    }
+
+    void OpenGate()
+    {
+        if (count == 3)
         {
-          rb.useGravity = true;
+            //Gate.transform.position(new Vector3(9, -1.5, -84.29) * Time.deltaTime);
+            Gate.SetActive(false);
         }
     }
 }
+
+    //private bool isTouching = true;
+
+    //void FixedUpdate()
+    //{
+      //  Vector3 movement = new Vector3(movementX, 0.0f, movementY);
+
+        //rb.AddForce(movement * speed);
+
+        //if (Input.GetKey(KeyCode.Space) && isTouching == true)
+        //{
+          //  Vector3 balljump = new Vector3(0.0f, 6.0f, 0.0f);
+            //rb.AddForce(balljump * jump);
+        //}
+
+        //isTouching = false;
+    //}
+
+    //private void OnCollisionStay()
+    //{
+      //isTouching = true;
+    //}
