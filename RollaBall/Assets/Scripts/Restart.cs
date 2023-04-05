@@ -8,13 +8,11 @@ public class Restart : MonoBehaviour
     public void NextLevel()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-        print("the button works");
     }
 
     public void restartGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        print("the button works");
     }
 
     void OnTriggerEnter(Collider col)

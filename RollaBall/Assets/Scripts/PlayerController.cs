@@ -7,16 +7,16 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     public float speed = 0;
+    private float movementX;
+    private float movementY;
+
 
     public float Jump = 0;
-    //public float radius;
-    public Vector3 boxSize;
-    public float maxDistance;
-    public LayerMask layermask;
+    public bool isGrounded;
 
-    RaycastHit hit;
-
-    public TextMeshProUGUI countText;
+    public TextMeshProUGUI countText16;
+    public TextMeshProUGUI countText18;
+    private int count;
 
     public GameObject winTextObject;
     public GameObject resetButton;
@@ -26,21 +26,18 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody rb;
 
-    private int count;
 
-    private float movementX;
-    private float movementY;
-
-    // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         count = 0;
 
         SetCountText();
+        SetCountTextLevel2();
         winTextObject.SetActive(false);
         resetButton.gameObject.SetActive(false);
         nextLevelbutton.gameObject.SetActive(false);
+        isGrounded = true;
     }
 
     void OnMove(InputValue movementValue)
@@ -53,12 +50,39 @@ public class PlayerController : MonoBehaviour
 
     void SetCountText()
     { 
-        countText.text = "Count: " + count.ToString();
+        countText16.text = "Count: " + count.ToString();
         if (count >= 16)
         {
             winTextObject.SetActive(true);
             resetButton.gameObject.SetActive(true);
             nextLevelbutton.gameObject.SetActive(true);
+        }
+    }
+
+    void SetCountTextLevel2()
+    {
+        countText18.text = "Count: " + count.ToString();
+        if (count >= 18)
+        {
+            winTextObject.SetActive(true);
+            resetButton.gameObject.SetActive(true);
+            nextLevelbutton.gameObject.SetActive(true);
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+        }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = false;
         }
     }
 
@@ -68,27 +92,9 @@ public class PlayerController : MonoBehaviour
 
         rb.AddForce(movement * speed);
 
-        if (Input.GetKeyDown(KeyCode.Space) && GroundCheck())
+        if (isGrounded == true && Input.GetKey(KeyCode.Space))
         {
-            rb.AddForce(transform.up * Jump,ForceMode.Impulse);
-        }
-    }
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawCube(transform.position - transform.up * maxDistance, boxSize);
-    }
-
-    bool GroundCheck()
-    {
-        if (Physics.BoxCast(transform.position, boxSize, -transform.up, transform.rotation, maxDistance, layermask))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
+            rb.AddForce(new Vector3(0.0f, Jump, 0.0f));
         }
     }
 
@@ -100,7 +106,7 @@ public class PlayerController : MonoBehaviour
             count = count + 1;
 
             SetCountText();
-
+            SetCountTextLevel2();
             OpenGate();
         }
     }
@@ -109,30 +115,7 @@ public class PlayerController : MonoBehaviour
     {
         if (count == 3)
         {
-            //Gate.transform.position(new Vector3(9, -1.5, -84.29) * Time.deltaTime);
             Gate.SetActive(false);
         }
     }
 }
-
-    //private bool isTouching = true;
-
-    //void FixedUpdate()
-    //{
-      //  Vector3 movement = new Vector3(movementX, 0.0f, movementY);
-
-        //rb.AddForce(movement * speed);
-
-        //if (Input.GetKey(KeyCode.Space) && isTouching == true)
-        //{
-          //  Vector3 balljump = new Vector3(0.0f, 6.0f, 0.0f);
-            //rb.AddForce(balljump * jump);
-        //}
-
-        //isTouching = false;
-    //}
-
-    //private void OnCollisionStay()
-    //{
-      //isTouching = true;
-    //}
